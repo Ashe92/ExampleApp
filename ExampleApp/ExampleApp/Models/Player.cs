@@ -7,20 +7,21 @@ namespace ExampleApp.Models
 {
     public class Player
     {
-        public ActionType Action{ get; set; }
+        public ActionType Action{ get; private set; }
         public float X { get; set; }
         public float Y { get; set; }
 
         public SKPaint Paint => GetPaint();
         public SKRect Object => GetRect();
 
-        private float Width => 100;
-        private float Height => 100;
+        private float Width { get; } = 100;
+        private float Height { get; } = 100;
+
         private SKColor Color => SKColors.Red;
 
         private SKPaint GetPaint()
         {
-            return new SKPaint { Color = SKColors.Red };
+            return new SKPaint{ Color = Color };
         }
 
         private SKRect GetRect()
@@ -33,21 +34,21 @@ namespace ExampleApp.Models
             return rect;
         }
 
-        private void MakeAction(ActionType action)
+        public void MakeAction(ActionType action)
         {
             switch(action)
             {
                 case ActionType.Left:
-                    X += 1;
+                    Y += 10;
                     break;
                 case ActionType.Right:
-                    X -= 1;
+                    Y += 10;
                     break;
                 case ActionType.Up:
-                    Y += 1;
+                    X -= 10;
                     break;
                 case ActionType.Down:
-                    Y -= 1;
+                    X += 10;
                     break;
                 default:
                     throw new Exception("Brak wskazanej akcji");

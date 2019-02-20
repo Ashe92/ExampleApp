@@ -1,9 +1,10 @@
-﻿using SkiaSharp.Views.Forms;
+﻿using ExampleApp.Enums;
+using ExampleApp.Models;
+using SkiaSharp.Views.Forms;
 using System;
-using SkiaSharp;
+using Xamarin.Essentials;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
-using Xamarin.Essentials;
 
 namespace ExampleApp.Views
 {
@@ -15,32 +16,25 @@ namespace ExampleApp.Views
         private float StartingY { get; set; }
         private float StartingZ { get; set; }
 
-        public MapPage ()
+        private Player _player;
+        public Player Player => _player ??(_player = new Player());
+        public Level Level { get; private set; }
+
+        public MapPage (int lvl =0)
 		{
 			InitializeComponent ();
-
-            SensorSpeed speed = SensorSpeed.Default;
-            //Gyroscope.Start(speed);
-            // Gyroscope.ReadingChanged += Gyroscope_ReadingChanged;
-            //OrientationSensor.Start(speed);
-            //OrientationSensor.ReadingChanged += OrientationSensor_ReadingChanged;
-            Accelerometer.Start(speed);
+            SetLevel(lvl);
+            SensorSpeed speed = SensorSpeed.Game;
+            if(!Accelerometer.IsMonitoring)
+                Accelerometer.Start(speed);
             Accelerometer.ReadingChanged += Accelerometer_ReadingChanged;
         }
 
-        void OrientationSensor_ReadingChanged(object sender, OrientationSensorChangedEventArgs e)
+        private void SetLevel(int lvl)
         {
-            var data = e.Reading;
-            Console.WriteLine($"Reading: X: {data.Orientation.X}, Y: {data.Orientation.Y}, Z: {data.Orientation.Z}, W: {data.Orientation.W}");
-            // Process Orientation quaternion (X, Y, Z, and W)
-        }
-
-
-        void Gyroscope_ReadingChanged(object sender, GyroscopeChangedEventArgs e)
-        {
-            var data = e.Reading;
-            // Process Angular Velocity X, Y, and Z reported in rad/s
-            Console.WriteLine($"Gyroscope: X: {data.AngularVelocity.X}, Y: {data.AngularVelocity.Y}, Z: {data.AngularVelocity.Z}");
+            var x = CanvasView.CanvasSize.Height;
+            var y = CanvasView.CanvasSize.Width;
+            Level = new Level(x,y, lvl);
         }
 
         void Accelerometer_ReadingChanged(object sender, AccelerometerChangedEventArgs e)
@@ -58,8 +52,6 @@ namespace ExampleApp.Views
 
             CheckValue(StartingX, data.Acceleration.X, "X");
             CheckValue(StartingY, data.Acceleration.Y, "Y");
-            CheckValue(StartingZ, data.Acceleration.Z, "X");
-            // Process Acceleration X, Y, and Z
         }
 
         private void CheckValue(float valueToSet,float valueToCheck, string value)
@@ -67,15 +59,18 @@ namespace ExampleApp.Views
             if (valueToSet < valueToCheck && (Math.Abs(valueToSet - valueToCheck) > 0.5))
             {
                 valueToSet = valueToCheck;
+                Player.MakeAction(value == "Y" ? ActionType.Left : ActionType.Up);
                 Console.WriteLine($"Accelerometer right/up {value}: Ok {valueToSet}:: {Math.Abs(valueToSet - valueToCheck)}");
             }
 
             if (valueToSet > valueToCheck && (Math.Abs(valueToSet - valueToCheck) > 0.5))
             {
                 valueToSet = valueToCheck;
-                
+                Player.MakeAction(value == "Y" ? ActionType.Right : ActionType.Down);
+
                 Console.WriteLine($"Accelerometer down/left {value}: Ok {valueToSet}:: {Math.Abs(valueToSet - valueToCheck)}");
             }
+            CanvasView.InvalidateSurface();
         }
 
 
@@ -86,10 +81,9 @@ namespace ExampleApp.Views
             var canvas = surface.Canvas;
 
             canvas.Clear();
-            canvas.DrawRect(GetRect(10,10),GetRed());
+            canvas.DrawRect(Player.Object,Player.Paint);
         }
 
-     
 
     }
 }

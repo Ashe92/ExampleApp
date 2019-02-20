@@ -22,5 +22,23 @@ namespace ExampleApp.Droid
             Platform.Init(this, savedInstanceState);
             LoadApplication(new App());
         }
+
+        protected override void OnStop()
+        {
+            base.OnStop();
+            Gyroscope.Stop();
+        }
+
+        protected override void OnDestroy()
+        {
+            base.OnDestroy();
+            Gyroscope.Stop();
+        }
+
+        protected override void OnPause()
+        {
+            base.OnPause();
+            Gyroscope.Stop();
+        }
     }
 }
