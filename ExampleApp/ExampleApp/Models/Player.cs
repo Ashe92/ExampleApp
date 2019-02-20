@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Data.Common;
+using System.Diagnostics;
+using System.Text;
 using ExampleApp.Enums;
 using SkiaSharp;
 
@@ -34,21 +36,49 @@ namespace ExampleApp.Models
             return rect;
         }
 
+        public bool CanMakeAction(ActionType action,float canvasWidth, float canvasHeight)
+        {
+            // ReSharper disable once ReplaceWithSingleAssignment.False
+            var canMakeAction = false;
+
+            switch(action)
+            {
+                case ActionType.Up:
+                    canMakeAction = (!(Y - 10 >= 0));
+                    break;
+                case ActionType.Down:
+                    canMakeAction = !(Y+Height+ 10.0f > canvasHeight);
+                    break;
+                case ActionType.Left:
+                    canMakeAction = !(Y - 10 >= 0);
+                    break;
+                case ActionType.Right:
+                    canMakeAction = !(X + Width + 10 > canvasWidth);
+                    break;
+                default:
+                    return false;
+            }
+
+            
+
+            return canMakeAction;
+        }
+
         public void MakeAction(ActionType action)
         {
             switch(action)
             {
                 case ActionType.Left:
-                    Y += 10;
-                    break;
-                case ActionType.Right:
-                    Y += 10;
-                    break;
-                case ActionType.Up:
                     X -= 10;
                     break;
-                case ActionType.Down:
+                case ActionType.Right:
                     X += 10;
+                    break;
+                case ActionType.Up:
+                    Y -= 10;
+                    break;
+                case ActionType.Down:
+                    Y += 10;
                     break;
                 default:
                     throw new Exception("Brak wskazanej akcji");
