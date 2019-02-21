@@ -5,11 +5,13 @@ using Android.Runtime;
 using Android.Views;
 using Android.Widget;
 using Android.OS;
+using ExampleApp.Views;
 using Xamarin.Essentials;
+using Xamarin.Forms;
 
 namespace ExampleApp.Droid
 {
-    [Activity(Label = "ExampleApp", Icon = "@mipmap/icon", Theme = "@style/MainTheme", MainLauncher = true, ConfigurationChanges = ConfigChanges.ScreenSize | ConfigChanges.Orientation)]
+    [Activity(Label = "ExampleApp", Icon = "@mipmap/icon", Theme = "@style/MainTheme", MainLauncher = true, ConfigurationChanges = ConfigChanges.ScreenSize | ConfigChanges.Orientation, ScreenOrientation = ScreenOrientation.Portrait)]
     public class MainActivity : global::Xamarin.Forms.Platform.Android.FormsAppCompatActivity
     {
         protected override void OnCreate(Bundle savedInstanceState)
@@ -20,25 +22,44 @@ namespace ExampleApp.Droid
             base.OnCreate(savedInstanceState);
             global::Xamarin.Forms.Forms.Init(this, savedInstanceState);
             Platform.Init(this, savedInstanceState);
+
+            MessagingCenter.Subscribe<MapPage>(this, "allowLandScapePortrait", sender =>
+            {
+                RequestedOrientation = ScreenOrientation.Landscape;
+            });
+
             LoadApplication(new App());
         }
 
+
+        //during page close setting back to portrait
         protected override void OnStop()
         {
             base.OnStop();
-            Gyroscope.Stop();
+            Accelerometer.Stop();
         }
 
         protected override void OnDestroy()
         {
             base.OnDestroy();
-            Gyroscope.Stop();
+            Accelerometer.Stop();
         }
 
         protected override void OnPause()
         {
             base.OnPause();
-            Gyroscope.Stop();
+            Accelerometer.Stop();
         }
+
+        protected override void OnRestart()
+        {
+            base.OnRestart();
+            if (!Accelerometer.IsMonitoring)
+            {
+                Accelerometer.Start(SensorSpeed.Game);
+            }
+        }
+
+
     }
 }

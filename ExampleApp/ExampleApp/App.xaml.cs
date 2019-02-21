@@ -1,5 +1,6 @@
 ﻿using ExampleApp.Views;
 using System;
+using Xamarin.Essentials;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 
@@ -11,23 +12,29 @@ namespace ExampleApp
         public App()
         {
             InitializeComponent();
-
             MainPage = new MainPage();
+            
         }
-
+        
         protected override void OnStart()
         {
-            // Handle when your app starts
+            if (Accelerometer.IsMonitoring)
+                Accelerometer.Start(SensorSpeed.Default);
         }
 
         protected override void OnSleep()
         {
-            // Handle when your app sleeps
+            if (Accelerometer.IsMonitoring)
+                Accelerometer.Stop();
         }
 
         protected override void OnResume()
         {
+            if(Accelerometer.IsMonitoring)
+                Accelerometer.Start(SensorSpeed.Default);
+
             // Handle when your app resumes
         }
+        
     }
 }

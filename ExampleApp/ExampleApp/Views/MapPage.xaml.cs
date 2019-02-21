@@ -33,17 +33,9 @@ namespace ExampleApp.Views
 
         private void SetupSensor()
         {
-            SensorSpeed speed = SensorSpeed.Game;
             if (!Accelerometer.IsMonitoring)
-                Accelerometer.Start(speed);
+                Accelerometer.Start(SensorSpeed.Game);
             Accelerometer.ReadingChanged += Accelerometer_ReadingChanged;
-        }
-
-        private void SetLevel()
-        {
-            var x = (float)(this.Width);
-            var y = (float)(this.Height);
-            Level = new Level(x,y, LvlNumber);
         }
 
         void Accelerometer_ReadingChanged(object sender, AccelerometerChangedEventArgs e)
@@ -63,42 +55,12 @@ namespace ExampleApp.Views
             CheckValue(StartingY, data.Acceleration.Y, "Y");
         }
 
-        private void CheckValue(float valueToSet,float valueToCheck, string value)
-        {
-            if (valueToSet < valueToCheck && (Math.Abs(valueToSet - valueToCheck) > 0.3))
-            {
-                valueToSet = valueToCheck;
-                var action = value == "Y" ? ActionType.Down : ActionType.Left;
-
-                if (Player.CanMakeAction(action, Level.Width, Level.Height))
-                {
-                    Player.MakeAction(action);
-                }
-                Console.WriteLine($"Accelerometer right/up {value}: Ok {valueToSet}:: {Math.Abs(valueToSet - valueToCheck)}");
-            }
-
-            if (valueToSet > valueToCheck && (Math.Abs(valueToSet - valueToCheck) > 0.3))
-            {
-                valueToSet = valueToCheck;
-                var action = value == "Y" ? ActionType.Up : ActionType.Right;
-                if (Player.CanMakeAction(action,Level.Width,Level.Height))
-                {
-                    Player.MakeAction(action);
-                }
-                    
-
-                Console.WriteLine($"Accelerometer down/left {value}: Ok {valueToSet}:: {Math.Abs(valueToSet - valueToCheck)}");
-            }
-            CanvasView.InvalidateSurface();
-        }
-
         private void CanvasViewLoadMap_OnPaintSurface(object sender, SKPaintSurfaceEventArgs e)
         {
             var info = e.Info;
-            Level = new Level(info.Width,info.Height,LvlNumber);
+            Level = new Level(info.Height,info.Width,LvlNumber);
 
             e.Surface.Canvas.Clear();
-
             CanvasView.PaintSurface -= CanvasViewLoadMap_OnPaintSurface;
             CanvasView.PaintSurface += CanvasView_OnPaintSurface;
         }
@@ -110,10 +72,58 @@ namespace ExampleApp.Views
             var canvas = surface.Canvas;
             canvas.Clear();
 
+            e.Surface.Canvas.DrawRect(new SKRect(0, 0, Level.Width, Level.Height), new SKPaint()
+            {
+                Style = SKPaintStyle.Stroke,
+                Color = SKColors.Green,
+
+                StrokeWidth = 10
+            });
             canvas.DrawRect(Level.EndPoint, new SKPaint() { Color = SKColors.Black });
             canvas.DrawRect(Player.Object,Player.Paint);
         }
 
+        private void CheckValue(float valueToSet, float valueToCheck, string value)
+        {
+            if (valueToSet < valueToCheck && (Math.Abs(valueToSet - valueToCheck) > 0.3))
+            {
+                valueToSet = valueToCheck;
+                var action = value == "Y" ? ActionType.Left : ActionType.Up;
+
+                if (Player.CanMakeAction(action, Level.Width, Level.Height))
+                {
+                    Player.MakeAction(action);
+                }
+                Console.WriteLine($"Accelerometer down/left {value}: Ok {valueToSet}:: {Math.Abs(valueToSet - valueToCheck)}");
+            }
+
+            if (valueToSet > valueToCheck && (Math.Abs(valueToSet - valueToCheck) > 0.3))
+            {
+                valueToSet = valueToCheck;
+                var action = value == "Y" ? ActionType.Right : ActionType.Down;
+                if (Player.CanMakeAction(action, Level.Width, Level.Height))
+                {
+                    Player.MakeAction(action);
+                }
+
+
+                Console.WriteLine($"Accelerometer up/rigth {value}: Ok {valueToSet}:: {Math.Abs(valueToSet - valueToCheck)}");
+            }
+            CanvasView.InvalidateSurface();
+        }
+        protected override void OnAppearing()
+        {
+            base.OnAppearing();
+            MessagingCenter.Send(this, "allowLandScapePortrait");
+            
+        }
+
+        //during page close setting back to portrait
+        protected override void OnDisappearing()
+        {
+            base.OnDisappearing();
+            MessagingCenter.Send(this, "preventLandScape");
+        }
 
     }
 }

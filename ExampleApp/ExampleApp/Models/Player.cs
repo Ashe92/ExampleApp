@@ -43,24 +43,23 @@ namespace ExampleApp.Models
 
             switch(action)
             {
-                case ActionType.Up:
+                case ActionType.Down:
                     canMakeAction = ((Y - 10 >= 0));
                     break;
-                case ActionType.Down:
-                    canMakeAction = (Y+Height+ 10.0f < canvasHeight);
-                    break;
-                case ActionType.Left:
-                    canMakeAction = (X - 10 >= 0);
+                case ActionType.Up:
+                    canMakeAction = (Y +  10.0f <= canvasHeight);
                     break;
                 case ActionType.Right:
-                    canMakeAction = (X + Width + 10 < canvasWidth);
+                    canMakeAction = (X - 10 >= 0);
+                    break;
+                case ActionType.Left:
+                    //todo repair it
+                    canMakeAction = (X + 10 < canvasWidth);
                     break;
                 default:
                     return false;
             }
-
             
-
             return canMakeAction;
         }
 
@@ -68,16 +67,16 @@ namespace ExampleApp.Models
         {
             switch(action)
             {
-                case ActionType.Left:
-                    X -= 10;
-                    break;
                 case ActionType.Right:
+                    X -= 10;
+                    break;  
+                case ActionType.Left:
                     X += 10;
                     break;
-                case ActionType.Up:
+                case ActionType.Down:
                     Y -= 10;
                     break;
-                case ActionType.Down:
+                case ActionType.Up:
                     Y += 10;
                     break;
                 default:
