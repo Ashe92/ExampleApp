@@ -2,6 +2,7 @@
 using ExampleApp.Models;
 using SkiaSharp.Views.Forms;
 using System;
+using SkiaSharp;
 using Xamarin.Essentials;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
@@ -25,17 +26,19 @@ namespace ExampleApp.Views
 			InitializeComponent ();
             LvlNumber = lvl;
 
-            this.SizeChanged += myPage_SizeChanged;
+            SetupSensor();
+            CanvasView.PaintSurface += CanvasViewLoadMap_OnPaintSurface;
+            CanvasView.InvalidateSurface();
+        }
+
+        private void SetupSensor()
+        {
             SensorSpeed speed = SensorSpeed.Game;
-            if(!Accelerometer.IsMonitoring)
+            if (!Accelerometer.IsMonitoring)
                 Accelerometer.Start(speed);
             Accelerometer.ReadingChanged += Accelerometer_ReadingChanged;
         }
-        
-         void myPage_SizeChanged(object sender, EventArgs e)
-        {
-            SetLevel();
-        }
+
         private void SetLevel()
         {
             var x = (float)(this.Width);
@@ -45,6 +48,7 @@ namespace ExampleApp.Views
 
         void Accelerometer_ReadingChanged(object sender, AccelerometerChangedEventArgs e)
         {
+            if (Level == null) return;
             var data = e.Reading;
             // ReSharper disable CompareOfFloatsByEqualityOperator
             if (StartingX == Starting && StartingY == Starting)
@@ -61,10 +65,11 @@ namespace ExampleApp.Views
 
         private void CheckValue(float valueToSet,float valueToCheck, string value)
         {
-            if (valueToSet < valueToCheck && (Math.Abs(valueToSet - valueToCheck) > 0.5))
+            if (valueToSet < valueToCheck && (Math.Abs(valueToSet - valueToCheck) > 0.3))
             {
                 valueToSet = valueToCheck;
                 var action = value == "Y" ? ActionType.Down : ActionType.Left;
+
                 if (Player.CanMakeAction(action, Level.Width, Level.Height))
                 {
                     Player.MakeAction(action);
@@ -72,7 +77,7 @@ namespace ExampleApp.Views
                 Console.WriteLine($"Accelerometer right/up {value}: Ok {valueToSet}:: {Math.Abs(valueToSet - valueToCheck)}");
             }
 
-            if (valueToSet > valueToCheck && (Math.Abs(valueToSet - valueToCheck) > 0.5))
+            if (valueToSet > valueToCheck && (Math.Abs(valueToSet - valueToCheck) > 0.3))
             {
                 valueToSet = valueToCheck;
                 var action = value == "Y" ? ActionType.Up : ActionType.Right;
@@ -87,14 +92,25 @@ namespace ExampleApp.Views
             CanvasView.InvalidateSurface();
         }
 
+        private void CanvasViewLoadMap_OnPaintSurface(object sender, SKPaintSurfaceEventArgs e)
+        {
+            var info = e.Info;
+            Level = new Level(info.Width,info.Height,LvlNumber);
+
+            e.Surface.Canvas.Clear();
+
+            CanvasView.PaintSurface -= CanvasViewLoadMap_OnPaintSurface;
+            CanvasView.PaintSurface += CanvasView_OnPaintSurface;
+        }
+
 
         private void CanvasView_OnPaintSurface(object sender, SKPaintSurfaceEventArgs e)
         {
-            var info = e.Info;
             var surface = e.Surface;
             var canvas = surface.Canvas;
-
             canvas.Clear();
+
+            canvas.DrawRect(Level.EndPoint, new SKPaint() { Color = SKColors.Black });
             canvas.DrawRect(Player.Object,Player.Paint);
         }
 

@@ -16,8 +16,8 @@ namespace ExampleApp.Models
         public SKPaint Paint => GetPaint();
         public SKRect Object => GetRect();
 
-        private float Width { get; } = 100;
-        private float Height { get; } = 100;
+        private float Width { get; } = 90;
+        private float Height { get; } = 90;
 
         private SKColor Color => SKColors.Red;
 
@@ -44,16 +44,16 @@ namespace ExampleApp.Models
             switch(action)
             {
                 case ActionType.Up:
-                    canMakeAction = (!(Y - 10 >= 0));
+                    canMakeAction = ((Y - 10 >= 0));
                     break;
                 case ActionType.Down:
-                    canMakeAction = !(Y+Height+ 10.0f > canvasHeight);
+                    canMakeAction = (Y+Height+ 10.0f < canvasHeight);
                     break;
                 case ActionType.Left:
-                    canMakeAction = !(Y - 10 >= 0);
+                    canMakeAction = (X - 10 >= 0);
                     break;
                 case ActionType.Right:
-                    canMakeAction = !(X + Width + 10 > canvasWidth);
+                    canMakeAction = (X + Width + 10 < canvasWidth);
                     break;
                 default:
                     return false;

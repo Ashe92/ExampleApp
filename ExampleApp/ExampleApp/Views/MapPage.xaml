@@ -5,6 +5,6 @@
              xmlns:tt="clr-namespace:TouchTracking;assembly=TouchTracking.Forms"
              x:Class="ExampleApp.Views.MapPage">
     <ContentPage.Content>
-        <skia:SKCanvasView x:Name="CanvasView" PaintSurface="CanvasView_OnPaintSurface" />
+        <skia:SKCanvasView x:Name="CanvasView" />
     </ContentPage.Content>
 </ContentPage>
