@@ -64,6 +64,7 @@ namespace ExampleApp.Models
         public Player()
         {
             Size =  new SKSize(Constants.SizeOfPlayer, Constants.SizeOfPlayer);
+            Type = TileType.Player;
         }
 
         public void SetUpPlayerLocation(int x, int y)

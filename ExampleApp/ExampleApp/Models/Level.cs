@@ -54,48 +54,41 @@ namespace ExampleApp.Models
                 for (int j = 0; j < Constants.WidthElements; j++)
                 {
                     map[i, j] = Convert.ToInt32(splitted[j]);
-                    if (map[i, j] == 3)
-                    {
-                        SetupPlayer(i, j, map[i, j]);
-                    }
-                    else if (map[i, j] != 1)
-                    {
-                        SetupTile(i, j, map[i, j]);
-                    }
+                    SetupTile(i, j, (TileType)map[i, j]);
+                    
                 }
             }
 
             return map;
         }
 
-        private void SetupPlayer(int i, int j, int tileType)
+        private void SetupTile(int i, int j, TileType type)
         {
-            if(tileType != (int)TileType.Player)
-                throw new Exception("That's not player");
-
-            PlayerTile = new Player()
-            {
-                X = i * BlockHeight+10,
-                Y = j * BlockWidth+ 10,
-                Type = TileType.Player,
-                Size = new SKSize(Constants.SizeOfPlayer, Constants.SizeOfPlayer),
-            };
-        }
-
-        private void SetupTile(int i, int j, int tileType)
-        {
-            var tile = new Tile
+            Tile tile = new Tile
             {
                 Y = i * BlockHeight,
                 X = j * BlockWidth,
                 Size = new SKSize(BlockWidth, BlockHeight),
-                Type = (TileType) tileType
+                Type = type
             };
-            if (tile.Type == TileType.End)
+            switch (type)
             {
-                EndPoint = tile;
+                case TileType.End:
+                    EndPoint = tile;
+                    break;
+                case TileType.Player:
+                    PlayerTile = new Player()
+                    {
+                        X = i * BlockHeight + 10,
+                        Y = j * BlockWidth + 10,
+                    };
+                    break;
+                case TileType.None:
+                    break;
+                default:
+                    TileElements.Add(tile);
+                    break;
             }
-            TileElements.Add(tile);
         }
 
 
@@ -145,66 +138,13 @@ namespace ExampleApp.Models
         public void CheckPlayerTileCollision(ActionType action)
         {
             if (CollisionDetected) return;
-            Tile tile = null;
-            //switch (action)
-            //{
-            //    case ActionType.Left:
-            //        tile = TileElements.FirstOrDefault(t =>
-            //        {
-            //            if (XIsInRange(t.Y, t.Y + (int)t.Size.Height))
-            //                return YIsInRange(t.X, t.X + (int)t.Size.Width);
-            //            return false;
-            //        });
-            //        break;
-            //    case ActionType.Right:
-            //        tile = TileElements.FirstOrDefault(t =>
-            //        {
-            //            if (XIsInRange(t.Y, t.Y + (int)t.Size.Height))
-            //                return YIsInRange(t.X, t.X + (int)t.Size.Width);
-            //            return false;
-            //        });
-            //        break;
-            //    case ActionType.Up:
-            //        tile = TileElements.FirstOrDefault(t =>
-            //        {
-            //            if (YIsInRange(t.Y, t.Y + (int)t.Size.Height))
-            //                return XIsInRange(t.X, t.X + (int)t.Size.Width);
-            //            return false;
-            //        });
-            //        break;
-            //    case ActionType.Down:
-            //        tile = TileElements.FirstOrDefault(t =>
-            //        {
-            //            if (YIsInRange(t.Y, t.Y + (int)t.Size.Height))
-            //                return XIsInRange(t.X, t.X + (int)t.Size.Width);
-            //            return false;
-            //        });
-            //        break;
-            //}
-            tile = TileElements.FirstOrDefault(t => PlayerTile.Rect.IntersectsWith(t.Rect));
+            var tile = TileElements.FirstOrDefault(t => PlayerTile.Rect.IntersectsWith(t.Rect));
             CollisionDetected = tile != null;
         }
 
-        public bool XIsInRange(int tilePoint, int tileSize)
+        public bool CheckEndCondition()
         {
-            var x = PlayerTile.X;
-            if (Enumerable.Range(tilePoint, tileSize).Contains(x))
-                return true;
-            x = PlayerTile.X + (int)PlayerTile.Size.Height;
-            if (Enumerable.Range(tilePoint, tileSize).Contains(x))
-                return true;
-            return false;
-        }
-
-        bool YIsInRange(int tilePoint, int tileSize)
-        {
-            var x = PlayerTile.Y;
-            if (Enumerable.Range(tilePoint, tileSize).Contains(x))
-                return true;
-            x = PlayerTile.Y + (int)PlayerTile.Size.Width;
-            if(Enumerable.Range(tilePoint, tileSize).Contains(x))
-                return true;
-            return false;
+            return PlayerTile.Rect.IntersectsWithInclusive(EndPoint.Rect);
         }
     }
 }

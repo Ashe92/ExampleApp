@@ -35,19 +35,5 @@ namespace ExampleApp.Test
             Assert.Equal(1, map[5, 5]);
             Assert.Equal(0, map[6, 12]);
         }
-
-
-        [Fact]
-        private void CheckCollisionOnLine()
-        {
-            Level lvl = new Level(1080, 1910);
-            lvl.SetUpMap(file);
-            Assert.False(lvl.XIsInRange(0, 150));
-
-            Assert.True(lvl.XIsInRange(200, 380));
-
-            Assert.False(lvl.XIsInRange(1000, 1200));
-
-        }
     }
 }
