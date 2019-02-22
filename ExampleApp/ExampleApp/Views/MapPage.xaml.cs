@@ -20,18 +20,15 @@ namespace ExampleApp.Views
         private float StartingY { get; set; }
         private int LvlNumber { get; }
 
-        private Player _player { get; set;}
         public Level _level { get; private set; }
 
         public MapPage (int lvl =0)
         {
-            InitializeComponent ();
-            LvlNumber = 1;
+            InitializeComponent();
+            LvlNumber = lvl;
             SetupSensor();
-            _player = new Player();
             CanvasView.PaintSurface += CanvasViewLoadMap_OnPaintSurface;
             CanvasView.InvalidateSurface();
-            NavigationPage.SetHasNavigationBar(this, false);
         }
 
         private void SetupSensor()
@@ -75,15 +72,23 @@ namespace ExampleApp.Views
             var canvas = surface.Canvas;
             canvas.Clear();
 
-            e.Surface.Canvas.DrawRect(new SKRect(0, 0, _level.Width, _level.Height), new SKPaint()
+            canvas.DrawRect(new SKRect(0, 0, _level.Width, _level.Height), new SKPaint()
             {
                 Style = SKPaintStyle.Stroke,
                 Color = SKColors.Green,
 
                 StrokeWidth = 10
             });
-            canvas.DrawRect(_level.EndPoint, new SKPaint() { Color = SKColors.Black });
-            canvas.DrawRect(_player.Object, _player.Paint);
+            DrawMapTiles(canvas);
+            canvas.DrawRect(_level.PlayerTile.Rect, _level.PlayerTile.Color);
+        }
+
+        private void DrawMapTiles(SKCanvas canvas)
+        {
+            foreach (var tile in _level.TileElements)
+            {
+                canvas.DrawRect(tile.Rect,tile.Color);
+            }
         }
 
         private void CheckValue(float valueToSet, float valueToCheck, string value)
@@ -93,9 +98,9 @@ namespace ExampleApp.Views
                 valueToSet = valueToCheck;
                 var action = value == "Y" ? ActionType.Right : ActionType.Down;
 
-                if (_player.CanMakeAction(action, _level.Width, _level.Height))
+                if (_level.PlayerTile.CanMakeAction(action, _level.Width, _level.Height))
                 {
-                    _player.MakeAction(action);
+                    _level.PlayerTile.MakeAction(action);
                 }
                 Console.WriteLine($"Accelerometer down/left {value}: Ok {valueToSet}:: {Math.Abs(valueToSet - valueToCheck)}");
             }
@@ -104,11 +109,10 @@ namespace ExampleApp.Views
             {
                 valueToSet = valueToCheck;
                 var action = value == "Y" ? ActionType.Left : ActionType.Up;
-                if (_player.CanMakeAction(action, _level.Width, _level.Height))
+                if (_level.PlayerTile.CanMakeAction(action, _level.Width, _level.Height))
                 {
-                    _player.MakeAction(action);
+                    _level.PlayerTile.MakeAction(action);
                 }
-
 
                 Console.WriteLine($"Accelerometer up/rigth {value}: Ok {valueToSet}:: {Math.Abs(valueToSet - valueToCheck)}");
             }

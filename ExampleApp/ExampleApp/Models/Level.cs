@@ -22,19 +22,10 @@ namespace ExampleApp.Models
         public int BlockHeight { get; private set; }
 
         public int Number { get;  }
-        public SKRect EndPoint => GetEndPoint();
 
-        private List<Tile> TileElements { get; set; }
-
-        private SKRect GetEndPoint()
-        {
-            var endPoint = new SKRect
-            {
-                Location = new SKPoint(100, 100),
-                Size = new SKSize(100, 100)
-            };
-            return endPoint;
-        }
+        public List<Tile> TileElements { get;private set; }
+        public Player PlayerTile { get; private set; }
+        public Tile EndPoint { get; private set; }
 
         public Level(float width, float height, int number =0)
         {
@@ -61,11 +52,32 @@ namespace ExampleApp.Models
                 for (int j = 0; j < Constants.WidthElements; j++)
                 {
                     map[i, j] = Convert.ToInt32(splitted[j]);
-                    SetupTile(i,j,map[i, j]);
+                    if (map[i, j] == 3)
+                    {
+                        SetupPlayer(i, j, map[i, j]);
+                    }
+                    else if (map[i, j] != 1)
+                    {
+                        SetupTile(i, j, map[i, j]);
+                    }
                 }
             }
 
             return map;
+        }
+
+        private void SetupPlayer(int i, int j, int tileType)
+        {
+            if(tileType != (int)TileType.Player)
+                throw new Exception("That's not player");
+
+            PlayerTile = new Player()
+            {
+                X = i * BlockHeight+10,
+                Y = j * BlockWidth+ 10,
+                Type = TileType.Player,
+                Size = new SKSize(Constants.SizeOfPlayer, Constants.SizeOfPlayer),
+            };
         }
 
         private void SetupTile(int i, int j, int tileType)
@@ -77,6 +89,10 @@ namespace ExampleApp.Models
                 Size = new SKSize(BlockWidth, BlockHeight),
                 Type = (TileType) tileType
             };
+            if (tile.Type == TileType.End)
+            {
+                EndPoint = tile;
+            }
             TileElements.Add(tile);
         }
 
@@ -111,8 +127,8 @@ namespace ExampleApp.Models
             Height = (sizeOfBlock * Constants.HeightElements);
             BlockHeight = sizeOfBlock;
 
-            var differece = canvasHeight - Height;
-            StartX = (int) Math.Floor(differece / 2);
+            var difference = canvasHeight - Height;
+            StartX = (int) Math.Floor(difference / 2);
         }
 
         private void CalculateWidth(float canvasWidth)
@@ -120,8 +136,13 @@ namespace ExampleApp.Models
             var sizeOfBlock = (int)Math.Floor(canvasWidth / Constants.WidthElements); ;
             Width = sizeOfBlock * Constants.WidthElements;
             BlockWidth = sizeOfBlock;
-            var differece = canvasWidth - Width;
-            StartY = (int)Math.Floor(differece / 2);
+            var difference = canvasWidth - Width;
+            StartY = (int)Math.Floor(difference / 2);
+        }
+
+        public void CalculatePlayerTileCollision()
+        {
+
         }
     }
 }

@@ -38,6 +38,9 @@ namespace ExampleApp.Models
                 case TileType.End:
                     paint.Color = SKColors.Black;
                     break;
+                case TileType.Player:
+                    paint.Color = SKColors.Red;
+                    break;
                 default:
                     paint.Color = SKColors.White;
                     break;

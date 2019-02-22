@@ -8,33 +8,10 @@ using SkiaSharp;
 
 namespace ExampleApp.Models
 {
-    public class Player
+    public class Player:Tile
     {
-        public float X { get; set; }
-        public float Y { get; set; }
-
-        public SKPaint Paint => GetPaint();
-        public SKRect Object => GetRect();
-
         private float Width { get; } = Constants.SizeOfPlayer;
         private float Height { get; } = Constants.SizeOfPlayer;
-
-        private SKColor Color => SKColors.Red;
-
-        private SKPaint GetPaint()
-        {
-            return new SKPaint{ Color = Color };
-        }
-
-        private SKRect GetRect()
-        {
-            var rect = new SKRect
-            {
-                Location = new SKPoint(X,Y),
-                Size = new SKSize(Width,Height)
-            };
-            return rect;
-        }
 
         public bool CanMakeAction(ActionType action,float canvasWidth, float canvasHeight)
         {
@@ -86,8 +63,12 @@ namespace ExampleApp.Models
 
         public Player()
         {
-            X = 10;
-            Y = 10;
+            Size =  new SKSize(Constants.SizeOfPlayer, Constants.SizeOfPlayer);
+        }
+
+        public void SetUpPlayerLocation(int x, int y)
+        {
+
         }
     }
 }

@@ -4,6 +4,7 @@
     {
         None = 1,
         Wall = 0,
-        End = 2
+        End = 2,
+        Player =3
     }
 }
