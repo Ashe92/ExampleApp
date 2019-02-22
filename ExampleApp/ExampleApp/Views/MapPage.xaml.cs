@@ -18,7 +18,7 @@ namespace ExampleApp.Views
         private readonly float Starting = 0.0f;
         private float StartingX { get; set; }
         private float StartingY { get; set; }
-        private int LvlNumber { get; set; }
+        private int LvlNumber { get; }
 
         private Player _player { get; set;}
         public Level _level { get; private set; }
@@ -26,24 +26,12 @@ namespace ExampleApp.Views
         public MapPage (int lvl =0)
         {
             InitializeComponent ();
-            LvlNumber = lvl;
+            LvlNumber = 1;
             SetupSensor();
             _player = new Player();
             CanvasView.PaintSurface += CanvasViewLoadMap_OnPaintSurface;
             CanvasView.InvalidateSurface();
-           // CheckMap();
-        }
-
-        private void CheckMap()
-        {
-            var assembly = IntrospectionExtensions.GetTypeInfo(typeof(MapPage)).Assembly;
-            Stream stream = assembly.GetManifestResourceStream($"ExampleApp.Level_{_level.Number}.txt");
-
-			string text = "";
-            using (var reader = new StreamReader(stream))
-            {
-                text = reader.ReadToEnd();
-            }
+            NavigationPage.SetHasNavigationBar(this, false);
         }
 
         private void SetupSensor()
@@ -74,13 +62,13 @@ namespace ExampleApp.Views
         {
             var info = e.Info;
             _level = new Level(info.Height,info.Width,LvlNumber);
+            _level.CalculateMap();
 
             e.Surface.Canvas.Clear();
             CanvasView.PaintSurface -= CanvasViewLoadMap_OnPaintSurface;
             CanvasView.PaintSurface += CanvasView_OnPaintSurface;
         }
-
-
+        
         private void CanvasView_OnPaintSurface(object sender, SKPaintSurfaceEventArgs e)
         {
             var surface = e.Surface;
@@ -103,7 +91,7 @@ namespace ExampleApp.Views
             if (valueToSet < valueToCheck && (Math.Abs(valueToSet - valueToCheck) > 0.3))
             {
                 valueToSet = valueToCheck;
-                var action = value == "Y" ? ActionType.Left : ActionType.Up;
+                var action = value == "Y" ? ActionType.Right : ActionType.Down;
 
                 if (_player.CanMakeAction(action, _level.Width, _level.Height))
                 {
@@ -115,7 +103,7 @@ namespace ExampleApp.Views
             if (valueToSet > valueToCheck && (Math.Abs(valueToSet - valueToCheck) > 0.3))
             {
                 valueToSet = valueToCheck;
-                var action = value == "Y" ? ActionType.Right : ActionType.Down;
+                var action = value == "Y" ? ActionType.Left : ActionType.Up;
                 if (_player.CanMakeAction(action, _level.Width, _level.Height))
                 {
                     _player.MakeAction(action);

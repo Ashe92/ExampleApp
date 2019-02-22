@@ -3,21 +3,21 @@ using System.Data.Common;
 using System.Diagnostics;
 using System.Text;
 using ExampleApp.Enums;
+using ExampleApp.Helpers;
 using SkiaSharp;
 
 namespace ExampleApp.Models
 {
     public class Player
     {
-        public ActionType Action{ get; private set; }
         public float X { get; set; }
         public float Y { get; set; }
 
         public SKPaint Paint => GetPaint();
         public SKRect Object => GetRect();
 
-        private float Width { get; } = 90;
-        private float Height { get; } = 90;
+        private float Width { get; } = Constants.SizeOfPlayer;
+        private float Height { get; } = Constants.SizeOfPlayer;
 
         private SKColor Color => SKColors.Red;
 
@@ -43,18 +43,18 @@ namespace ExampleApp.Models
 
             switch(action)
             {
-                case ActionType.Down:
+                case ActionType.Up:
                     canMakeAction = ((Y - 10 >= 0));
                     break;
-                case ActionType.Up:
-                    canMakeAction = (Y +  10.0f <= canvasHeight);
-                    break;
-                case ActionType.Right:
-                    canMakeAction = (X - 10 >= 0);
+                case ActionType.Down:
+                    canMakeAction = (Y + Height +  10.0f < canvasHeight);
                     break;
                 case ActionType.Left:
+                    canMakeAction = (X - 10 >= 0);
+                    break;
+                case ActionType.Right:
                     //todo repair it
-                    canMakeAction = (X + 10 < canvasWidth);
+                    canMakeAction = (X + Width + 10 < canvasWidth);
                     break;
                 default:
                     return false;
@@ -67,16 +67,16 @@ namespace ExampleApp.Models
         {
             switch(action)
             {
-                case ActionType.Right:
+                case ActionType.Left:
                     X -= 10;
                     break;  
-                case ActionType.Left:
+                case ActionType.Right:
                     X += 10;
                     break;
-                case ActionType.Down:
+                case ActionType.Up:
                     Y -= 10;
                     break;
-                case ActionType.Up:
+                case ActionType.Down:
                     Y += 10;
                     break;
                 default:
