@@ -22,7 +22,7 @@ namespace ExampleApp.Models
         public int Width { get; private set; }
         public int BlockWidth { get; private set; }
         public int BlockHeight { get; private set; }
-        public bool CollisionDetected { get; private set; } = false;
+        public StateLevel StateLevel { get; set; } 
         public int Number { get;  }
 
         public List<Tile> TileElements { get;private set; }
@@ -35,6 +35,7 @@ namespace ExampleApp.Models
             CalculateWidth(width);
             CalculateHeight(height);
             TileElements = new List<Tile>();
+            StateLevel = StateLevel.Started;
         }
 
         public void CalculateMap()
@@ -137,14 +138,22 @@ namespace ExampleApp.Models
 
         public void CheckPlayerTileCollision(ActionType action)
         {
-            if (CollisionDetected) return;
-            var tile = TileElements.FirstOrDefault(t => PlayerTile.Rect.IntersectsWith(t.Rect));
-            CollisionDetected = tile != null;
+            if (StateLevel == StateLevel.Ongoing)
+            {
+                var tile = TileElements.FirstOrDefault(t => PlayerTile.Rect.IntersectsWith(t.Rect));
+                if (tile != null)
+                    StateLevel = StateLevel.Looser;
+            }
+
+            CheckEndCondition();
         }
 
-        public bool CheckEndCondition()
+        public void CheckEndCondition()
         {
-            return PlayerTile.Rect.IntersectsWithInclusive(EndPoint.Rect);
+            if (PlayerTile.Rect.IntersectsWithInclusive(EndPoint.Rect))
+            {
+                StateLevel = StateLevel.Finished;
+            }
         }
     }
 }

@@ -11,7 +11,7 @@ using Xamarin.Forms;
 
 namespace ExampleApp.Droid
 {
-    [Activity(Label = "ExampleApp", Icon = "@mipmap/icon", Theme = "@style/MainTheme", MainLauncher = true, ConfigurationChanges = ConfigChanges.ScreenSize| ConfigChanges.Orientation, ScreenOrientation = ScreenOrientation.Portrait)]
+    [Activity(Label = "ExampleApp", Icon = "@mipmap/icon", Theme = "@style/MainTheme", MainLauncher = true, ConfigurationChanges = ConfigChanges.ScreenSize| ConfigChanges.Orientation, ScreenOrientation = ScreenOrientation.Landscape)]
     public class MainActivity : global::Xamarin.Forms.Platform.Android.FormsAppCompatActivity
     {
         protected override void OnCreate(Bundle savedInstanceState)
@@ -21,15 +21,6 @@ namespace ExampleApp.Droid
             base.OnCreate(savedInstanceState);
             global::Xamarin.Forms.Forms.Init(this, savedInstanceState);
             Platform.Init(this, savedInstanceState);
-
-            MessagingCenter.Subscribe<MapPage>(this, "allowLandScapePortrait", sender =>
-            {
-                RequestedOrientation = ScreenOrientation.Landscape;
-            });
-            App.ScreenHeight = (int)(Resources.DisplayMetrics.HeightPixels / Resources.DisplayMetrics.Density);
-            App.ScreenWidth = (int)(Resources.DisplayMetrics.WidthPixels / Resources.DisplayMetrics.Density);
-            App.ScreenHeight = Resources.DisplayMetrics.HeightPixels;
-            App.ScreenWidth = Resources.DisplayMetrics.WidthPixels;
             LoadApplication(new App());
         }
 
@@ -62,6 +53,10 @@ namespace ExampleApp.Droid
             }
         }
 
-
+        public override void OnBackPressed()
+        {
+           
+            base.OnBackPressed();
+        }
     }
 }

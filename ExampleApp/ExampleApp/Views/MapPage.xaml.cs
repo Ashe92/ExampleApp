@@ -6,6 +6,7 @@ using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using SkiaSharp;
+using TouchTracking;
 using Xamarin.Essentials;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
@@ -58,10 +59,11 @@ namespace ExampleApp.Views
         private void CanvasViewLoadMap_OnPaintSurface(object sender, SKPaintSurfaceEventArgs e)
         {
             var info = e.Info;
-            _level = new Level(info.Height,info.Width,LvlNumber);
+            _level = new Level(info.Width,info.Height,LvlNumber);
             _level.CalculateMap();
 
             e.Surface.Canvas.Clear();
+            _level.StateLevel = StateLevel.Ongoing;
             CanvasView.PaintSurface -= CanvasViewLoadMap_OnPaintSurface;
             CanvasView.PaintSurface += CanvasView_OnPaintSurface;
         }
@@ -83,16 +85,28 @@ namespace ExampleApp.Views
 
             canvas.DrawRect(_level.PlayerTile.Rect, _level.PlayerTile.Color);
             DrawCollision(canvas);
+            DrawEnd(canvas);
         }
 
         private void DrawCollision(SKCanvas canvas)
         {
-            if (!_level.CollisionDetected) return;
-            const string text = "Koniec gry.Przegrano.";
-            canvas.Clear();
-            canvas.DrawText(text, 100,100,new SKPaint(){Color = SKColors.DarkGreen,TextSize = 10});
+            if (_level.StateLevel != StateLevel.Looser) return;
+            const string text = "Koniec gry. Przegrano.";
+            DrawEndingOption(text,canvas);
+        }
+        private void DrawEnd(SKCanvas canvas)
+        {
+            if (_level.StateLevel != StateLevel.Finished) return;
+            const string text = "Koniec gry. Wygrano.";
+            DrawEndingOption(text, canvas);
+        }
 
-            if(Accelerometer.IsMonitoring)
+        void DrawEndingOption(string info, SKCanvas canvas)
+        {
+            canvas.Clear();
+            canvas.DrawText(info, 100, 100, new SKPaint() { Color = SKColors.DarkGreen, TextSize = 100 });
+
+            if (Accelerometer.IsMonitoring)
                 Accelerometer.Stop();
         }
 
@@ -102,6 +116,7 @@ namespace ExampleApp.Views
             {
                 canvas.DrawRect(tile.Rect,tile.Color);
             }
+            canvas.DrawRect(_level.EndPoint.Rect, _level.EndPoint.Color);
         }
 
         private void CheckValue(float valueToSet, float valueToCheck, string value)
@@ -134,16 +149,21 @@ namespace ExampleApp.Views
             CanvasView.InvalidateSurface();
         }
 
-        protected override void OnAppearing()
+        protected override bool OnBackButtonPressed()
         {
-            base.OnAppearing();
-            MessagingCenter.Send(this, "allowLandScapePortrait");
+            if(Accelerometer.IsMonitoring)
+                Accelerometer.Stop();
+
+            Application.Current.MainPage = new MainPage();
+            return true;
         }
 
-        protected override void OnDisappearing()
+        private void OnTouchEffectAction(object sender, TouchActionEventArgs args)
         {
-            base.OnDisappearing();
-            MessagingCenter.Send(this, "preventLandScape");
+            if (_level.StateLevel == StateLevel.Finished)
+            {
+                Application.Current.MainPage = new MainPage();
+            }
         }
     }
 }

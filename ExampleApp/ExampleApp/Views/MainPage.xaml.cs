@@ -16,7 +16,9 @@ namespace ExampleApp.Views
 
         private void ContinueButton_OnClicked(object sender, EventArgs e)
         {
+
             Application.Current.MainPage = new MapPage();
+
         }
 
         private void ChooseButton_OnClicked(object sender, EventArgs e)
