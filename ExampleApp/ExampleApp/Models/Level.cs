@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Net;
 using System.Reflection;
+using System.Runtime.InteropServices.ComTypes;
 using ExampleApp.Enums;
 using ExampleApp.Helpers;
 using ExampleApp.Views;
@@ -20,7 +22,7 @@ namespace ExampleApp.Models
         public int Width { get; private set; }
         public int BlockWidth { get; private set; }
         public int BlockHeight { get; private set; }
-
+        public bool CollisionDetected { get; private set; } = false;
         public int Number { get;  }
 
         public List<Tile> TileElements { get;private set; }
@@ -140,9 +142,69 @@ namespace ExampleApp.Models
             StartY = (int)Math.Floor(difference / 2);
         }
 
-        public void CalculatePlayerTileCollision()
+        public void CheckPlayerTileCollision(ActionType action)
         {
+            if (CollisionDetected) return;
+            Tile tile = null;
+            //switch (action)
+            //{
+            //    case ActionType.Left:
+            //        tile = TileElements.FirstOrDefault(t =>
+            //        {
+            //            if (XIsInRange(t.Y, t.Y + (int)t.Size.Height))
+            //                return YIsInRange(t.X, t.X + (int)t.Size.Width);
+            //            return false;
+            //        });
+            //        break;
+            //    case ActionType.Right:
+            //        tile = TileElements.FirstOrDefault(t =>
+            //        {
+            //            if (XIsInRange(t.Y, t.Y + (int)t.Size.Height))
+            //                return YIsInRange(t.X, t.X + (int)t.Size.Width);
+            //            return false;
+            //        });
+            //        break;
+            //    case ActionType.Up:
+            //        tile = TileElements.FirstOrDefault(t =>
+            //        {
+            //            if (YIsInRange(t.Y, t.Y + (int)t.Size.Height))
+            //                return XIsInRange(t.X, t.X + (int)t.Size.Width);
+            //            return false;
+            //        });
+            //        break;
+            //    case ActionType.Down:
+            //        tile = TileElements.FirstOrDefault(t =>
+            //        {
+            //            if (YIsInRange(t.Y, t.Y + (int)t.Size.Height))
+            //                return XIsInRange(t.X, t.X + (int)t.Size.Width);
+            //            return false;
+            //        });
+            //        break;
+            //}
+            tile = TileElements.FirstOrDefault(t => PlayerTile.Rect.IntersectsWith(t.Rect));
+            CollisionDetected = tile != null;
+        }
 
+        public bool XIsInRange(int tilePoint, int tileSize)
+        {
+            var x = PlayerTile.X;
+            if (Enumerable.Range(tilePoint, tileSize).Contains(x))
+                return true;
+            x = PlayerTile.X + (int)PlayerTile.Size.Height;
+            if (Enumerable.Range(tilePoint, tileSize).Contains(x))
+                return true;
+            return false;
+        }
+
+        bool YIsInRange(int tilePoint, int tileSize)
+        {
+            var x = PlayerTile.Y;
+            if (Enumerable.Range(tilePoint, tileSize).Contains(x))
+                return true;
+            x = PlayerTile.Y + (int)PlayerTile.Size.Width;
+            if(Enumerable.Range(tilePoint, tileSize).Contains(x))
+                return true;
+            return false;
         }
     }
 }

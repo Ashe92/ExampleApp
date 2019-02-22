@@ -80,7 +80,20 @@ namespace ExampleApp.Views
                 StrokeWidth = 10
             });
             DrawMapTiles(canvas);
+
             canvas.DrawRect(_level.PlayerTile.Rect, _level.PlayerTile.Color);
+            DrawCollision(canvas);
+        }
+
+        private void DrawCollision(SKCanvas canvas)
+        {
+            if (!_level.CollisionDetected) return;
+            const string text = "Koniec gry.Przegrano.";
+            canvas.Clear();
+            canvas.DrawText(text, 100,100,new SKPaint(){Color = SKColors.DarkGreen,TextSize = 10});
+
+            if(Accelerometer.IsMonitoring)
+                Accelerometer.Stop();
         }
 
         private void DrawMapTiles(SKCanvas canvas)
@@ -101,6 +114,7 @@ namespace ExampleApp.Views
                 if (_level.PlayerTile.CanMakeAction(action, _level.Width, _level.Height))
                 {
                     _level.PlayerTile.MakeAction(action);
+                    _level.CheckPlayerTileCollision(action);
                 }
                 Console.WriteLine($"Accelerometer down/left {value}: Ok {valueToSet}:: {Math.Abs(valueToSet - valueToCheck)}");
             }
@@ -112,6 +126,7 @@ namespace ExampleApp.Views
                 if (_level.PlayerTile.CanMakeAction(action, _level.Width, _level.Height))
                 {
                     _level.PlayerTile.MakeAction(action);
+                    _level.CheckPlayerTileCollision(action);
                 }
 
                 Console.WriteLine($"Accelerometer up/rigth {value}: Ok {valueToSet}:: {Math.Abs(valueToSet - valueToCheck)}");

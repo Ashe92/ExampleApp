@@ -6,16 +6,23 @@ namespace ExampleApp.Test
 {
     public class LevelTest
     {
+        private readonly string file =
+@"0 0 0 0 0 0 0 0 0 0 0 0 0
+0 3 1 1 1 1 1 1 1 1 1 1 0
+0 1 1 1 1 1 1 1 1 1 1 1 0
+0 1 1 1 1 1 1 1 1 1 1 1 0
+0 1 1 1 1 1 1 1 1 1 1 1 0
+0 1 1 1 1 1 1 1 1 1 1 1 0
+0 0 0 0 0 0 0 0 0 0 0 0 0";
 
-        
 
         [Fact]
         private void CheckSizeOfBlock()
         {
-            Level lvl = new Level(1080, 1910);
+            Level lvl = new Level(1910, 1080);
 
-            Assert.Equal(154, lvl.BlockWidth);
-            Assert.Equal(146, lvl.BlockHeight);
+            Assert.Equal(146, lvl.BlockWidth);
+            Assert.Equal(154, lvl.BlockHeight);
         }
 
 
@@ -29,13 +36,18 @@ namespace ExampleApp.Test
             Assert.Equal(0, map[6, 12]);
         }
 
-        private string file =
-@"0 0 0 0 0 0 0 0 0 0 0 0 0
-0 1 1 1 1 1 1 1 1 1 1 1 0
-0 1 1 1 1 1 1 1 1 1 1 1 0
-0 1 1 1 1 1 1 1 1 1 1 1 0
-0 1 1 1 1 1 1 1 1 1 1 1 0
-0 1 1 1 1 1 1 1 1 1 1 1 0
-0 0 0 0 0 0 0 0 0 0 0 0 0";
+
+        [Fact]
+        private void CheckCollisionOnLine()
+        {
+            Level lvl = new Level(1080, 1910);
+            lvl.SetUpMap(file);
+            Assert.False(lvl.XIsInRange(0, 150));
+
+            Assert.True(lvl.XIsInRange(200, 380));
+
+            Assert.False(lvl.XIsInRange(1000, 1200));
+
+        }
     }
 }
