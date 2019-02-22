@@ -21,7 +21,7 @@ namespace ExampleApp.Views
 
         private void ChooseButton_OnClicked(object sender, EventArgs e)
         {
-            throw new NotImplementedException();
+            
         }
     }
 }

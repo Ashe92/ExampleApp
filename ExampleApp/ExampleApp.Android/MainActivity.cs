@@ -27,7 +27,10 @@ namespace ExampleApp.Droid
             {
                 RequestedOrientation = ScreenOrientation.Landscape;
             });
-
+            App.ScreenHeight = (int)(Resources.DisplayMetrics.HeightPixels / Resources.DisplayMetrics.Density);
+            App.ScreenWidth = (int)(Resources.DisplayMetrics.WidthPixels / Resources.DisplayMetrics.Density);
+            App.ScreenHeight = Resources.DisplayMetrics.HeightPixels;
+            App.ScreenWidth = Resources.DisplayMetrics.WidthPixels;
             LoadApplication(new App());
         }
 

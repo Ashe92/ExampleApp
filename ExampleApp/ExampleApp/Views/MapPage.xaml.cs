@@ -2,6 +2,9 @@
 using ExampleApp.Models;
 using SkiaSharp.Views.Forms;
 using System;
+using System.IO;
+using System.Reflection;
+using System.Runtime.InteropServices;
 using SkiaSharp;
 using Xamarin.Essentials;
 using Xamarin.Forms;
@@ -17,18 +20,30 @@ namespace ExampleApp.Views
         private float StartingY { get; set; }
         private int LvlNumber { get; set; }
 
-        private Player _player;
-        public Player Player => _player ??(_player = new Player());
-        public Level Level { get; private set; }
+        private Player _player { get; set;}
+        public Level _level { get; private set; }
 
         public MapPage (int lvl =0)
-		{
-			InitializeComponent ();
+        {
+            InitializeComponent ();
             LvlNumber = lvl;
-
             SetupSensor();
+            _player = new Player();
             CanvasView.PaintSurface += CanvasViewLoadMap_OnPaintSurface;
             CanvasView.InvalidateSurface();
+           // CheckMap();
+        }
+
+        private void CheckMap()
+        {
+            var assembly = IntrospectionExtensions.GetTypeInfo(typeof(MapPage)).Assembly;
+            Stream stream = assembly.GetManifestResourceStream($"ExampleApp.Level_{_level.Number}.txt");
+
+			string text = "";
+            using (var reader = new StreamReader(stream))
+            {
+                text = reader.ReadToEnd();
+            }
         }
 
         private void SetupSensor()
@@ -40,7 +55,7 @@ namespace ExampleApp.Views
 
         void Accelerometer_ReadingChanged(object sender, AccelerometerChangedEventArgs e)
         {
-            if (Level == null) return;
+            if (_level == null) return;
             var data = e.Reading;
             // ReSharper disable CompareOfFloatsByEqualityOperator
             if (StartingX == Starting && StartingY == Starting)
@@ -58,7 +73,7 @@ namespace ExampleApp.Views
         private void CanvasViewLoadMap_OnPaintSurface(object sender, SKPaintSurfaceEventArgs e)
         {
             var info = e.Info;
-            Level = new Level(info.Height,info.Width,LvlNumber);
+            _level = new Level(info.Height,info.Width,LvlNumber);
 
             e.Surface.Canvas.Clear();
             CanvasView.PaintSurface -= CanvasViewLoadMap_OnPaintSurface;
@@ -72,15 +87,15 @@ namespace ExampleApp.Views
             var canvas = surface.Canvas;
             canvas.Clear();
 
-            e.Surface.Canvas.DrawRect(new SKRect(0, 0, Level.Width, Level.Height), new SKPaint()
+            e.Surface.Canvas.DrawRect(new SKRect(0, 0, _level.Width, _level.Height), new SKPaint()
             {
                 Style = SKPaintStyle.Stroke,
                 Color = SKColors.Green,
 
                 StrokeWidth = 10
             });
-            canvas.DrawRect(Level.EndPoint, new SKPaint() { Color = SKColors.Black });
-            canvas.DrawRect(Player.Object,Player.Paint);
+            canvas.DrawRect(_level.EndPoint, new SKPaint() { Color = SKColors.Black });
+            canvas.DrawRect(_player.Object, _player.Paint);
         }
 
         private void CheckValue(float valueToSet, float valueToCheck, string value)
@@ -90,9 +105,9 @@ namespace ExampleApp.Views
                 valueToSet = valueToCheck;
                 var action = value == "Y" ? ActionType.Left : ActionType.Up;
 
-                if (Player.CanMakeAction(action, Level.Width, Level.Height))
+                if (_player.CanMakeAction(action, _level.Width, _level.Height))
                 {
-                    Player.MakeAction(action);
+                    _player.MakeAction(action);
                 }
                 Console.WriteLine($"Accelerometer down/left {value}: Ok {valueToSet}:: {Math.Abs(valueToSet - valueToCheck)}");
             }
@@ -101,9 +116,9 @@ namespace ExampleApp.Views
             {
                 valueToSet = valueToCheck;
                 var action = value == "Y" ? ActionType.Right : ActionType.Down;
-                if (Player.CanMakeAction(action, Level.Width, Level.Height))
+                if (_player.CanMakeAction(action, _level.Width, _level.Height))
                 {
-                    Player.MakeAction(action);
+                    _player.MakeAction(action);
                 }
 
 
@@ -111,19 +126,17 @@ namespace ExampleApp.Views
             }
             CanvasView.InvalidateSurface();
         }
+
         protected override void OnAppearing()
         {
             base.OnAppearing();
             MessagingCenter.Send(this, "allowLandScapePortrait");
-            
         }
 
-        //during page close setting back to portrait
         protected override void OnDisappearing()
         {
             base.OnDisappearing();
             MessagingCenter.Send(this, "preventLandScape");
         }
-
     }
 }

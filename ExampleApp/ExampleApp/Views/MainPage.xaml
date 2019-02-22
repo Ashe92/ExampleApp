@@ -4,11 +4,11 @@
              xmlns:local="clr-namespace:ExampleApp"
              x:Class="ExampleApp.Views.MainPage">
 
-    <StackLayout>
+    <StackLayout HorizontalOptions="Center" VerticalOptions="Center">
         <!-- Place new controls here -->
-        <Label Text="Welcome to Xamarin.Forms!" 
+        <Label Text="Welcome to Roll to End!" 
            HorizontalOptions="Center"
-           VerticalOptions="CenterAndExpand" />
+           VerticalOptions="Center" />
         <Button x:Name="Continue" Clicked="ContinueButton_OnClicked" Text="Kontynuj"/>
         <Button x:Name="Choose" Clicked="ChooseButton_OnClicked" Text="Wyierz Poziom"/>
     </StackLayout>
