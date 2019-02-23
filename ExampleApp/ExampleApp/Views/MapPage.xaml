@@ -10,6 +10,8 @@
             <skia:SKCanvasView x:Name="CanvasView"
                                VerticalOptions="FillAndExpand" 
                                HorizontalOptions="FillAndExpand" />
+
+            <Label x:Name="TimeLabel" FontSize="Large" TextColor="Black" Text="30" FontAttributes="Bold"/>
             <Grid.Effects>
                 <tt:TouchEffect Capture="True" TouchAction="OnTouchEffectAction" />
             </Grid.Effects>

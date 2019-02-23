@@ -5,6 +5,7 @@ using System;
 using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Timers;
 using SkiaSharp;
 using TouchTracking;
 using Xamarin.Essentials;
@@ -23,6 +24,8 @@ namespace ExampleApp.Views
 
         public Level _level { get; private set; }
 
+        private int Time { get; set; } = 10;
+
         public MapPage (int lvl =0)
         {
             InitializeComponent();
@@ -30,6 +33,22 @@ namespace ExampleApp.Views
             SetupSensor();
             CanvasView.PaintSurface += CanvasViewLoadMap_OnPaintSurface;
             CanvasView.InvalidateSurface();
+        }
+
+        private void SetUpTimer()
+        {
+            Device.StartTimer(TimeSpan.FromSeconds(1), () =>
+            {
+                Time--;
+                TimeLabel.Text = Time.ToString();
+                if (Time == 0)
+                {
+                    _level.StateLevel = StateLevel.Looser;
+                    return false;
+                }
+
+                return true; // True = Repeat again, False = Stop the timer
+            });
         }
 
         private void SetupSensor()
@@ -63,6 +82,7 @@ namespace ExampleApp.Views
             _level.CalculateMap();
 
             e.Surface.Canvas.Clear();
+            SetUpTimer();
             _level.StateLevel = StateLevel.Ongoing;
             CanvasView.PaintSurface -= CanvasViewLoadMap_OnPaintSurface;
             CanvasView.PaintSurface += CanvasView_OnPaintSurface;
@@ -151,6 +171,7 @@ namespace ExampleApp.Views
 
         protected override bool OnBackButtonPressed()
         {
+            
             if(Accelerometer.IsMonitoring)
                 Accelerometer.Stop();
 
