@@ -11,7 +11,7 @@
                                VerticalOptions="FillAndExpand" 
                                HorizontalOptions="FillAndExpand" />
 
-            <Label x:Name="TimeLabel" FontSize="Large" TextColor="Black" Text="30" FontAttributes="Bold"/>
+            <Label x:Name="TimeLabel" FontSize="Large" TextColor="Black" Text="10" FontAttributes="Bold"/>
             <Grid.Effects>
                 <tt:TouchEffect Capture="True" TouchAction="OnTouchEffectAction" />
             </Grid.Effects>
